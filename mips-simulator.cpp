@@ -9,61 +9,42 @@ vector<int> mem(1024);
 int PC = 0;
 map<string, int> reg;
 map<string, int> labels;
-void printReg()
-{
-    cout << "$s0 = " << reg["$s0"] << " ";
-    cout << "$s1 = " << reg["$s1"] << " ";
-    cout << "$s2 = " << reg["$s2"] << " ";
-    cout << "$s3 = " << reg["$s3"] << " ";
-    cout << "$s4 = " << reg["$s4"] << " ";
-    cout << "$s5 = " << reg["$s5"] << " ";
-    cout << "$s6 = " << reg["$s6"] << " ";
-    cout << "$t0 = " << reg["$t0"] << " ";
-    cout << "$t1 = " << reg["$t1"] << " ";
-}
 
 void li(string regName, int val)
 {
     reg[regName] = val;
-    //cout << "li called" << endl;
 }
 
 void la(string regName1, int val, string regName2)
 {
     int address = reg[regName2] + val;
     reg[regName1] = address;
-    //cout << "lw called" << endl;
 }
 
 void lui(string regName, int val)
 {
     reg[regName] = val;
-    //cout << "la called" << endl;
 }
 
 void lw(string regName1, int val, string regName2)
 {
     int address = reg[regName2] + val;
     reg[regName1] = mem[address];
-    //cout << "lw called" << endl;
 }
 
 void sw(string regName1, int val, string regName2)
 {
     int address = reg[regName2] + val;
     mem[address] = reg[regName1];
-    //cout << "sw called" << endl;
 }
 
 void add(string r1, string r2, string r3)
 {
     reg[r1] = reg[r2] + reg[r3];
-    //cout << "add called" << endl;
 }
 void addi(string r1, string r2, int r3)
 {
     reg[r1] = reg[r2] + r3;
-    //cout << "addi called" << endl;
 }
 
 void sub(string r1, string r2, string r3)
@@ -75,12 +56,11 @@ void sub(string r1, string r2, string r3)
         reg[r1] = reg[r2] - reg[r3];
     else
         reg[r1] = reg[r2] - number;
-    //cout << "sub called" << endl;
 }
 
 int main()
 {
-
+    //INITIALISATION OF REGISTER VALUES
     reg.insert(pair<string, int>("$zero", 0));
     reg.insert(pair<string, int>("$s0", 0));
     reg.insert(pair<string, int>("$s1", 0));
@@ -114,6 +94,7 @@ int main()
     reg.insert(pair<string, int>("$fp", 0));
     reg.insert(pair<string, int>("$ra", 0));
 
+    //READING PROGRAM FROM FILE
     ifstream file("bubble.asm");
     vector<vector<string>> programStack;
 
@@ -123,9 +104,8 @@ int main()
     int takingData = 0;
     while (getline(file, program))
     {
-        replace(program.begin(), program.end(), ',', ' ');
+        replace(program.begin(), program.end(), ',', ' '); //remove commas
 
-        //program.erase(remove(program.begin(), program.end(), ','), program.end()); //to remove commas
         stringstream ss(program);
         string item;
         vector<string> splittedStrings;
@@ -141,19 +121,16 @@ int main()
                 continue;
             if (!item.compare(".data"))
             {
-                //cout << "got .data " << endl;
                 takingData = 2;
                 continue;
             }
             if (takingData == 2)
             {
-                //cout << "expected array:   " << item << endl;
                 takingData = 3;
                 continue;
             }
             if (takingData == 3)
             {
-                //cout << "expected .word   " << item << endl;
                 takingData = 1;
                 continue;
             }
@@ -162,7 +139,6 @@ int main()
                 if (!item.compare(".globl") || !item.compare(".text"))
                 {
                     takingData = 0;
-                    //   cout << "expected .text   " << item << endl;
                     continue;
                 }
                 else
@@ -179,7 +155,7 @@ int main()
 
             if ((*item.begin()) == '#')
                 commentFlag = 1;
-
+            //remove unnecessary spaces
             item.erase(remove_if(item.begin(),
                                  item.end(),
                                  bind(isspace<char>,
@@ -190,7 +166,6 @@ int main()
             {
 
                 item = item.substr(0, item.size() - 1);
-                //  cout << "item is " << item << "PC is " << PC << endl;
                 labels[item] = PC;
 
                 continue;
@@ -199,6 +174,7 @@ int main()
             if (commentFlag == 0 && takingData == 0)
             {
                 progstack = 1;
+                //remove spaces
                 item.erase(remove_if(item.begin(),
                                      item.end(),
                                      bind(isspace<char>,
@@ -207,11 +183,9 @@ int main()
                            item.end());
                 if (!item.compare("jr"))
                 {
-                    //cout << "i am here";
                     finish = 1;
                     break;
                 }
-                //cout << "item is " << item << " pc is " << PC << endl;
                 splittedStrings.push_back(item);
             }
         }
@@ -225,34 +199,10 @@ int main()
             programStack.push_back(splittedStrings);
             PC++;
         }
-
-        // for (int i = 0; i < splittedStrings.size(); i++)
-        // {
-        //     cout << splittedStrings[i] << "\n";
-        // }
-
-        //cout << "\n\n";
     }
-
-    // for (int i = 0; i < programStack.size(); i++)
-    // {
-    //     for (int j = 0; j < programStack[i].size(); j++)
-    //     {
-    //         cout << programStack[i][j] << "-";
-    //     }
-    //     cout << endl;
-    // }
-    //cout << programStack.size();
     for (int i = 0; i < programStack.size(); i++)
     {
-        // cout << "i am inside";
-        //printReg();
-        // cout << "\nMEMOry\n";
-        // for (int i = 0; i < 7; i++)
-        // {
-        //     cout << mem[i] << "  ";
-        // }
-        // cout << "\n";
+
         if (!programStack[i][0].compare("add"))
         {
             add(programStack[i][1], programStack[i][2], programStack[i][3]);
@@ -285,11 +235,6 @@ int main()
             iss >> number;
             number = number / 4;
             string subReg = programStack[i][2].substr(programStack[i][2].length() - 4, 3);
-
-            // cout << programStack[i][0] << "-" << programStack[i][1] << "-" << programStack[i][2] << endl;
-            // cout << programStack[i][1] << "-" << number << "-" << reg[subReg] << "-" << subReg << endl
-            //      << endl;
-
             lw(programStack[i][1], number, subReg);
         }
         else if (!programStack[i][0].compare("sw"))
@@ -322,7 +267,6 @@ int main()
         else if (!programStack[i][0].compare("j"))
         {
             i = labels[programStack[i][1]] - 1;
-            //cout << "j called" << endl;
         }
         else if (!programStack[i][0].compare("bgt"))
         {
@@ -330,7 +274,6 @@ int main()
             int second = reg[programStack[i][2]];
             if (first > second)
                 i = labels[programStack[i][3]] - 1;
-            //cout << "bgt called" << endl;
         }
         else if (!programStack[i][0].compare("blt"))
         {
@@ -343,7 +286,7 @@ int main()
         {
             int first = reg[programStack[i][1]];
             int second = reg[programStack[i][2]];
-            //cout << "bne called" << endl;
+
             if (first != second)
                 i = labels[programStack[i][3]] - 1;
         }
@@ -351,7 +294,7 @@ int main()
         {
             int first = reg[programStack[i][1]];
             int second = reg[programStack[i][2]];
-            //cout << "beq called" << first << "  " << second << endl;
+
             if (first == second)
                 i = labels[programStack[i][3]] - 1;
         }
@@ -359,7 +302,7 @@ int main()
         {
             int first = reg[programStack[i][2]];
             int second = reg[programStack[i][3]];
-            //cout << "slt called" << endl;
+
             if (first < second)
                 reg[programStack[i][1]] = 1;
             else
@@ -367,7 +310,6 @@ int main()
         }
     }
 
-    //cout << reg["$s0"] << " " << reg["$s1"] << " " << reg["$s2"];
     cout << "REGISTERS\n";
 
     map<std::string, int>::iterator it = reg.begin();
