@@ -7,3 +7,6 @@ INSTRUCTIONS TO RUN:
 2.Run g++ mips-simulator.cpp in the terminal
 3.Run ./a.exe in the terminal
 4.All the register values and memory values will be printed on the screen
+
+MIPS COMMANDS IMPLEMENTED:
+ADD , ADDI , SUB , LI , LW , SW , LA , LUI , J , BGT , BLT ,BNE , BEQ , SLT

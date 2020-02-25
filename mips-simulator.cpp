@@ -141,7 +141,7 @@ int main()
                     takingData = 0;
                     continue;
                 }
-                else
+                else //taking data into memory
                 {
                     int number;
                     istringstream iss(item);
@@ -153,7 +153,7 @@ int main()
                 }
             }
 
-            if ((*item.begin()) == '#')
+            if ((*item.begin()) == '#') //removing comments
                 commentFlag = 1;
             //remove unnecessary spaces
             item.erase(remove_if(item.begin(),
@@ -162,7 +162,7 @@ int main()
                                       placeholders::_1,
                                       locale::classic())),
                        item.end());
-            if (*(item.rbegin()) == ':')
+            if (*(item.rbegin()) == ':') //storing jump labels
             {
 
                 item = item.substr(0, item.size() - 1);
@@ -329,7 +329,7 @@ int main()
     }
 
     cout << "\nMEMORY\n";
-    for (int i = 0; i < mem.size(); i++)
+    for (int i = 0; i < dataCounter; i++)
     {
         cout << mem[i] << "  ";
     }
